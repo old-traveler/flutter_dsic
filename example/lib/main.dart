@@ -34,16 +34,38 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(title: Text(widget.title)),
       body: Container(
           child: Disc(
-        items: [
-          DiscItem(value: 20, color: Colors.red),
-          DiscItem(value: 30, color: Colors.blue),
-          DiscItem(value: 25, color: Colors.amber),
-          DiscItem(value: 20, color: Colors.deepOrangeAccent),
-          DiscItem(value: 40, color: Colors.lightGreen),
-        ],
-        duration: Duration(milliseconds: 1000),
-        radius: 100,
-      )),
+            padding: EdgeInsets.symmetric(vertical: 50,horizontal: 20),
+            items: [
+              DiscItem(
+                  value: 20,
+                  color: Colors.red,
+                  topText: '小胖子',
+                  bottomText: '92kg'),
+              DiscItem(
+                  value: 30,
+                  color: Colors.blue,
+                  topText: '小帅哥',
+                  bottomText: '90kg'),
+              DiscItem(
+                  value: 25,
+                  color: Colors.amber,
+                  topText: '杨小胖',
+                  bottomText: '100kg'),
+              DiscItem(
+                  value: 20,
+                  color: Colors.deepOrangeAccent,
+                  topText: '小小胖',
+                  bottomText: '999kg'),
+              DiscItem(
+                  value: 40,
+                  color: Colors.lightGreen,
+                  topText: '小胖小胖',
+                  bottomText: '555kg'),
+            ],
+            duration: Duration(milliseconds: 2000),
+            radius: 80,
+            strokeWidth: 28,
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         tooltip: 'Increment',
