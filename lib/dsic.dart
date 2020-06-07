@@ -113,6 +113,7 @@ class _DiscPaint extends CustomPainter {
     double temp = 0;
     mPaint.color = Colors.transparent;
     canvas.drawArc(rect, 0, 2 * pi, false, mPaint);
+    Offset lastPaintPoint;
     items.forEach((item) {
       mPaint.style = PaintingStyle.stroke;
       mPaint.strokeWidth = strokeWidth;
@@ -128,37 +129,55 @@ class _DiscPaint extends CustomPainter {
       final itemRadius = radius / 20;
       final itemRect = startPoint.translate(-itemRadius, -itemRadius) &
           Size.fromRadius(itemRadius);
-      canvas.drawArc(itemRect, 0, (value * 4).clamp(0, 2) * pi, false, mPaint);
       mPaint.strokeWidth = 1;
       final lastPoint = getPointByMidPoint(size, endPoint);
-      if (value > 0.5) {
-        double scale = ((value - 0.5) / 0.2).clamp(0.0, 1.0);
-        final _endPoint = Offset(
-            startPoint.dx + (endPoint.dx - startPoint.dx) * scale,
-            startPoint.dy + (endPoint.dy - startPoint.dy) * scale);
-        canvas.drawLine(startPoint, _endPoint, mPaint);
+      bool canPaint(Offset it) {
+        if (lastPaintPoint == null) {
+          return true;
+        }
+        return (it.dx * lastPaintPoint.dx < 0) ||
+            (it.dy - lastPaintPoint.dy).abs() >
+                topTextStyle.fontSize + 12 + bottomTextStyle.fontSize;
       }
-      if (value > 0.7) {
-        double scale = ((value - 0.7) / 0.3).clamp(0.0, 1.0);
-        final _lastPoint = Offset(
-            endPoint.dx + (lastPoint.dx - endPoint.dx) * scale,
-            endPoint.dy + (lastPoint.dy - endPoint.dy) * scale);
-        canvas.drawLine(endPoint, _lastPoint, mPaint);
+
+      if (canPaint(lastPoint)) {
+        canvas.drawArc(
+            itemRect, 0, (value * 4).clamp(0, 2) * pi, false, mPaint);
+        paintItemLine(canvas, startPoint, endPoint, lastPoint, item);
+        lastPaintPoint = lastPoint;
       }
-      topTextPainter.text = TextSpan(text: item.topText, style: topTextStyle);
-      bottomTextPainter.text =
-          TextSpan(text: item.bottomText, style: bottomTextStyle);
-      topTextPainter.layout();
-      topTextPainter.paint(
-          canvas,
-          lastPoint.translate(lastPoint.dx <= 0 ? 0 : -topTextPainter.width,
-              -(topTextStyle.fontSize + 8)));
-      bottomTextPainter.layout();
-      bottomTextPainter.paint(
-          canvas,
-          lastPoint.translate(
-              lastPoint.dx <= 0 ? 0 : -bottomTextPainter.width, 5));
     });
+  }
+
+  void paintItemLine(Canvas canvas, Offset startPoint, Offset midPoint,
+      Offset lastPoint, DiscItem item) {
+    if (value > 0.5) {
+      double scale = ((value - 0.5) / 0.2).clamp(0.0, 1.0);
+      final _endPoint = Offset(
+          startPoint.dx + (midPoint.dx - startPoint.dx) * scale,
+          startPoint.dy + (midPoint.dy - startPoint.dy) * scale);
+      canvas.drawLine(startPoint, _endPoint, mPaint);
+    }
+    if (value > 0.7) {
+      double scale = ((value - 0.7) / 0.3).clamp(0.0, 1.0);
+      final _lastPoint = Offset(
+          midPoint.dx + (lastPoint.dx - midPoint.dx) * scale,
+          midPoint.dy + (lastPoint.dy - midPoint.dy) * scale);
+      canvas.drawLine(midPoint, _lastPoint, mPaint);
+    }
+    topTextPainter.text = TextSpan(text: item.topText, style: topTextStyle);
+    bottomTextPainter.text =
+        TextSpan(text: item.bottomText, style: bottomTextStyle);
+    topTextPainter.layout();
+    topTextPainter.paint(
+        canvas,
+        lastPoint.translate(lastPoint.dx <= 0 ? 0 : -topTextPainter.width,
+            -(topTextStyle.fontSize + 8)));
+    bottomTextPainter.layout();
+    bottomTextPainter.paint(
+        canvas,
+        lastPoint.translate(
+            lastPoint.dx <= 0 ? 0 : -bottomTextPainter.width, 5));
   }
 
   Offset getPointByMidPoint(Size size, Offset offset) {
