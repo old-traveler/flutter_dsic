@@ -114,6 +114,7 @@ class _DiscPaint extends CustomPainter {
     mPaint.color = Colors.transparent;
     canvas.drawArc(rect, 0, 2 * pi, false, mPaint);
     Offset lastPaintPoint;
+    Offset firstPaintPoint;
     items.forEach((item) {
       mPaint.style = PaintingStyle.stroke;
       mPaint.strokeWidth = strokeWidth;
@@ -131,20 +132,22 @@ class _DiscPaint extends CustomPainter {
           Size.fromRadius(itemRadius);
       mPaint.strokeWidth = 1;
       final lastPoint = getPointByMidPoint(size, endPoint);
-      bool canPaint(Offset it) {
-        if (lastPaintPoint == null) {
+      bool canPaint(Offset it, Offset other) {
+        if (other == null) {
           return true;
         }
-        return (it.dx * lastPaintPoint.dx < 0) ||
-            (it.dy - lastPaintPoint.dy).abs() >
+        return (it.dx * other.dx < 0) ||
+            (it.dy - other.dy).abs() >
                 topTextStyle.fontSize + 12 + bottomTextStyle.fontSize;
       }
 
-      if (canPaint(lastPoint)) {
+      if (canPaint(lastPoint, lastPaintPoint) &&
+          canPaint(lastPoint, firstPaintPoint)) {
         canvas.drawArc(
             itemRect, 0, (value * 4).clamp(0, 2) * pi, false, mPaint);
         paintItemLine(canvas, startPoint, endPoint, lastPoint, item);
         lastPaintPoint = lastPoint;
+        firstPaintPoint ??= lastPoint;
       }
     });
   }
